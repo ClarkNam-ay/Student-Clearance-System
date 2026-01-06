@@ -288,7 +288,7 @@
                 <span>Clearance History</span>
             </a></li>
 
-        <li class="menu-title">Clearance</li>
+        <!-- <li class="menu-title">Clearance</li>
         <li><a href="create_clearance.php">
                 <i class="fas fa-clipboard-check"></i>
                 <span>Create Clearance</span>
@@ -306,7 +306,7 @@
         <li><a href="../logout.php" class="logout">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
-            </a></li>
+            </a></li> -->
     </ul>
 
     <!-- Optional: User Profile Footer -->

@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'faculty') {
 
 // Get admin info
 $admin_name = $_SESSION['fullname'] ?? 'Admin User';
-$admin_email = $_SESSION['email'] ?? 'student@system.com';
+$admin_email = $_SESSION['email'] ?? 'faculty@system.com';
 $admin_initials = strtoupper(substr($admin_name, 0, 1));
 ?>
 <!DOCTYPE html>
@@ -498,7 +498,7 @@ $admin_initials = strtoupper(substr($admin_name, 0, 1));
                     <div class="user-avatar"><?= $admin_initials ?></div>
                     <div class="user-details">
                         <h4><?= htmlspecialchars($admin_name) ?></h4>
-                        <p>Student</p>
+                        <p>Faculty</p>
                     </div>
                     <i class="fas fa-chevron-down"></i>
                 </div>

@@ -283,22 +283,22 @@
                 <i class="fas fa-user-plus"></i>
                 <span>Create User</span>
             </a></li> -->
-        <li><a href="manage_user.php">
+        <li><a href="clearance_form.php">
                 <i class="fas fa-users-cog"></i>
                 <span>Clearance Form</span>
             </a></li>
 
-        <li class="menu-title">Clearance</li>
-        <li><a href="create_clearance.php">
+        <!-- <li class="menu-title">Files</li> -->
+        <li><a href="print_clearance.php">
                 <i class="fas fa-clipboard-check"></i>
-                <span>Create Clearance</span>
+                <span>Print Clearance</span>
             </a></li>
-        <li><a href="#">
+        <!-- <li><a href="#">
                 <i class="fas fa-check-double"></i>
                 <span>Approved Clearances</span>
-            </a></li>
+            </a></li> -->
 
-        <li class="menu-title">System</li>
+        <!-- <li class="menu-title">System</li>
         <li><a href="#">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
@@ -306,7 +306,7 @@
         <li><a href="../logout.php" class="logout">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
-            </a></li>
+            </a></li> -->
     </ul>
 
     <!-- Optional: User Profile Footer -->

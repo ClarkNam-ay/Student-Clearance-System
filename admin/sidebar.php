@@ -293,12 +293,16 @@
                 <i class="fas fa-clipboard-check"></i>
                 <span>Create Clearance</span>
             </a></li>
+        <li><a href="faculty_signature.php">
+                <i class="fas fa-signature"></i>
+                <span>Faculty E-Signature</span>
+            </a></li>
         <li><a href="#">
-                <i class="fas fa-check-double"></i>
-                <span>Approved Clearances</span>
+                <i class="fas fa-pen-to-square"></i>
+                <span>Clearance Template</span>
             </a></li>
 
-        <li class="menu-title">System</li>
+        <!-- <li class="menu-title">System</li>
         <li><a href="#">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
@@ -306,7 +310,7 @@
         <li><a href="../logout.php" class="logout">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
-            </a></li>
+            </a></li> -->
     </ul>
 
     <!-- Optional: User Profile Footer -->
