@@ -297,7 +297,7 @@
                 <i class="fas fa-signature"></i>
                 <span>Faculty E-Signature</span>
             </a></li>
-        <li><a href="#">
+        <li><a href="clearance_template.php">
                 <i class="fas fa-pen-to-square"></i>
                 <span>Clearance Template</span>
             </a></li>
