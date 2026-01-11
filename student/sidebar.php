@@ -283,7 +283,7 @@
                 <i class="fas fa-user-plus"></i>
                 <span>Create User</span>
             </a></li> -->
-        <li><a href="clearance_form.php">
+        <li><a href="clearance_view.php">
                 <i class="fas fa-users-cog"></i>
                 <span>Clearance Form</span>
             </a></li>

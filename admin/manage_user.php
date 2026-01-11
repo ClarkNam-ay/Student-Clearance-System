@@ -18,11 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     }
 
     $fullname = trim($_POST['fullname']);
+    $course   = trim($_POST['course']);
+    $year_level = trim($_POST['year_level']);
+    $section  = trim($_POST['section']);
     $email    = trim($_POST['email']);
     $password = $_POST['password'];
     $role     = $_POST['role'];
 
-    if ($fullname === "" || $email === "" || $password === "" || $role === "") {
+    if ($fullname === "" || $course === "" || $year_level === "" || $section === "" || $email === "" || $password === "" || $role === "") {
         $error = "All fields are required.";
     }
     elseif (!in_array($role, ['student', 'faculty'])) {
@@ -39,11 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
             $stmt = $pdo->prepare(
-                "INSERT INTO users (fullname, email, password, role)
-                 VALUES (?, ?, ?, ?)"
+                "INSERT INTO users (fullname, course, year_level, section, email, password, role)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)"
             );
 
-            if ($stmt->execute([$fullname, $email, $hashedPassword, $role])) {
+            if ($stmt->execute([$fullname, $course, $year_level, $section, $email, $hashedPassword, $role])) {
                 $message = ucfirst($role) . " account created successfully.";
             } else {
                 $error = "Failed to create account.";
@@ -90,30 +93,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_designation'])
 /* ===== UPDATE USER ===== */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 
-    if (!csrf_validate()) {
-        die("Invalid CSRF token.");
-    }
+    if (!csrf_validate()) die("Invalid CSRF token.");
 
     $id       = (int) $_POST['user_id'];
     $fullname = trim($_POST['fullname']);
     $email    = trim($_POST['email']);
     $role     = $_POST['role'];
 
-    if ($fullname === "" || $email === "" || $role === "") {
-        $error = "All fields are required.";
-    } else {
-        $stmt = $pdo->prepare(
-            "UPDATE users 
-             SET fullname = ?, email = ?, role = ?
-             WHERE id = ? AND role IN ('student','faculty')"
-        );
+    if ($role === 'student') {
+        $course     = trim($_POST['course']);
+        $year_level = trim($_POST['year_level']);
+        $section    = trim($_POST['section']);
 
-        if ($stmt->execute([$fullname, $email, $role, $id])) {
-            $message = "User updated successfully.";
-        } else {
-            $error = "Failed to update user.";
-        }
+        $stmt = $pdo->prepare("
+            UPDATE users
+            SET fullname=?, email=?, role=?, course=?, year_level=?, section=?
+            WHERE id=? AND role IN ('student','faculty')
+        ");
+
+        $stmt->execute([$fullname, $email, $role, $course, $year_level, $section, $id]);
+
+    } else {
+        $stmt = $pdo->prepare("
+            UPDATE users
+            SET fullname=?, email=?, role=?
+            WHERE id=? AND role='faculty'
+        ");
+
+        $stmt->execute([$fullname, $email, $role, $id]);
     }
+
+    $message = "User updated successfully.";
 }
 
 /* ===== DELETE USER ===== */
@@ -141,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
 
 /* ===== FETCH USERS ===== */
 $stmt = $pdo->query(
-    "SELECT id, fullname, email, role, status, designation
+    "SELECT id, fullname, email, role, course, year_level, section, status, designation
      FROM users
      WHERE role IN ('student','faculty')
      ORDER BY role, fullname"
@@ -953,13 +963,17 @@ tbody tr:hover {
 
                         <td>
                             <button class="btn btn-primary" onclick="openEditModal(
-            <?= $u['id'] ?>,
-            '<?= htmlspecialchars($u['fullname'], ENT_QUOTES) ?>',
-            '<?= htmlspecialchars($u['email'], ENT_QUOTES) ?>',
-            '<?= $u['role'] ?>'
-        )">
+    <?= $u['id'] ?>,
+    '<?= htmlspecialchars($u['fullname'], ENT_QUOTES) ?>',
+    '<?= $u['course'] ?? '' ?>',
+    '<?= $u['year_level'] ?? '' ?>',
+    '<?= $u['section'] ?? '' ?>',
+    '<?= htmlspecialchars($u['email'], ENT_QUOTES) ?>',
+    '<?= $u['role'] ?>'
+)">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
+
 
                             <button class="btn btn-toggle" onclick="openDeleteModal(<?= $u['id'] ?>)">
                                 <i class="fas fa-trash"></i> Delete
@@ -987,10 +1001,41 @@ tbody tr:hover {
         <form method="POST">
             <div class="modal-body">
                 <?= csrf_input() ?>
-
                 <div class="form-group">
                     <label><i class="fas fa-user"></i> Full Name</label>
                     <input type="text" name="fullname" placeholder="Enter full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-graduation-cap"></i> Course</label>
+                    <select name="course" required>
+                        <option value="">-- Select Course --</option>
+                        <option value="BSCS">BS in Computer Science</option>
+                        <option value="BSIS">BS in Information Systems</option>
+                        <option value="BSIT">BS in Information Technology</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-layer-group"></i> Year Level</label>
+                    <select name="year_level" required>
+                        <option value="">-- Select Year Level --</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-chalkboard"></i> Section</label>
+                    <select name="section" required>
+                        <option value="">-- Select Section --</option>
+                        <option value="A">Section A</option>
+                        <option value="B">Section B</option>
+                        <option value="C">Section C</option>
+                        <option value="D">Section D</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -1046,7 +1091,38 @@ tbody tr:hover {
                     <input type="text" name="fullname" id="edit_fullname" required>
                 </div>
 
-                <div class="form-group">
+                <div id="studentFields">
+                    <div class="form-group">
+                        <label>Course</label>
+                        <select name="course" id="edit_course" required>
+                            <option value="BSCS">BS in Computer Science</option>
+                            <option value="BSIS">BS in Information Systems</option>
+                            <option value="BSIT">BS in Information Technology</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Year Level</label>
+                        <select name="year_level" id="edit_year_level" required>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Section</label>
+                        <select name="section" id="edit_section" required>
+                            <option value="A">Section A</option>
+                            <option value="B">Section B</option>
+                            <option value="C">Section C</option>
+                            <option value="D">Section D</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class=" form-group">
                     <label>Email</label>
                     <input type="email" name="email" id="edit_email" required>
                 </div>
@@ -1126,13 +1202,26 @@ document.addEventListener('keydown', function(e) {
 });
 
 //Modal for edit and delete
-function openEditModal(id, fullname, email, role) {
+function openEditModal(id, fullname, course, year_level, section, email, role) {
     document.getElementById('edit_user_id').value = id;
     document.getElementById('edit_fullname').value = fullname;
     document.getElementById('edit_email').value = email;
     document.getElementById('edit_role').value = role;
+
+    const studentFields = document.getElementById('studentFields');
+
+    if (role === 'student') {
+        studentFields.style.display = 'block';
+        document.getElementById('edit_course').value = course;
+        document.getElementById('edit_year_level').value = year_level;
+        document.getElementById('edit_section').value = section;
+    } else {
+        studentFields.style.display = 'none';
+    }
+
     document.getElementById('editUserModal').classList.add('active');
 }
+
 
 function closeEditModal() {
     document.getElementById('editUserModal').classList.remove('active');

@@ -20,6 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $fullname = trim($_POST['fullname']);
+    $course   = trim($_POST['course']);
+    $year_level = trim($_POST['year_level']);
+    $section  = trim($_POST['section']);
     $email    = trim($_POST['email']);
     $password = $_POST['password'];
     $role     = $_POST['role']; // student or faculty
@@ -45,11 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
             $stmt = $pdo->prepare(
-                "INSERT INTO users (fullname, email, password, role)
-                 VALUES (?, ?, ?, ?)"
+                "INSERT INTO users (fullname, course, year_level, section, email, password, role)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)"
             );
 
-            if ($stmt->execute([$fullname, $email, $hashedPassword, $role])) {
+            if ($stmt->execute([$fullname, $course, $year_level, $section, $email, $hashedPassword, $role])) {
                 $success = ucfirst($role) . " account created successfully.";
             } else {
                 $error = "Failed to create account.";
@@ -123,6 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?= csrf_input() ?>
 
                 <input type="text" name="fullname" placeholder="Full Name" required>
+                <input type="text" name="course" placeholder="Course" required>
+                <input type="text" name="year_level" placeholder="Year Level" required>
+                <input type="text" name="section" placeholder="Section" required>
 
                 <input type="email" name="email" placeholder="Email" required>
 
