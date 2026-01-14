@@ -289,7 +289,7 @@
             </a></li>
 
         <!-- <li class="menu-title">Files</li> -->
-        <li><a href="print_clearance.php">
+        <li><a href="print_clearance.php" target="_blank">
                 <i class="fas fa-clipboard-check"></i>
                 <span>Print Clearance</span>
             </a></li>

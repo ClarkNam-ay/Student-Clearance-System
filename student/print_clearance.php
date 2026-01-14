@@ -1,5 +1,8 @@
 <?php
 require_once "../config/connection.php";
+require_once "../vendor/dompdf/autoload.inc.php";
+
+use Dompdf\Dompdf;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +18,7 @@ $student_id = $_SESSION['user_id'];
 
 /*
 |--------------------------------------------------------------------------
-| GET CLEARANCE ID (DYNAMIC)
+| GET CLEARANCE ID
 |--------------------------------------------------------------------------
 */
 $clearance_id = isset($_GET['clearance_id']) ? (int)$_GET['clearance_id'] : 3;
@@ -25,7 +28,7 @@ if ($clearance_id <= 0) {
 
 /*
 |--------------------------------------------------------------------------
-| GET CLEARANCE INFO
+| FETCH CLEARANCE
 |--------------------------------------------------------------------------
 */
 $clearanceStmt = $pdo->prepare("
@@ -42,24 +45,23 @@ if (!$clearance) {
 
 /*
 |--------------------------------------------------------------------------
-| GET LATEST TEMPLATE
+| FETCH TEMPLATE
 |--------------------------------------------------------------------------
 */
-$templateStmt = $pdo->query("
+$template = $pdo->query("
     SELECT *
     FROM clearance_templates
     ORDER BY created_at DESC
     LIMIT 1
-");
-$template = $templateStmt->fetch();
+")->fetch();
 
 if (!$template) {
-    die("No clearance template found.");
+    die("No template found.");
 }
 
 /*
 |--------------------------------------------------------------------------
-| GET STUDENT INFO
+| FETCH STUDENT
 |--------------------------------------------------------------------------
 */
 $studentStmt = $pdo->prepare("
@@ -72,7 +74,7 @@ $student = $studentStmt->fetch();
 
 /*
 |--------------------------------------------------------------------------
-| GET FACULTY + SIGNATURES
+| FETCH FACULTY + SIGNATURES
 |--------------------------------------------------------------------------
 */
 $stmt = $pdo->prepare("
@@ -98,26 +100,27 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$student_id, $clearance_id]);
 $faculty_list = $stmt->fetchAll();
+
+/*
+|--------------------------------------------------------------------------
+| BUILD HTML (YOUR EXACT VIEW)
+|--------------------------------------------------------------------------
+*/
+ob_start();
 ?>
 
-<?php include "header.php"; ?>
-<?php include "sidebar.php"; ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="UTF-8">
-    <title>Internal Clearance</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-    /* ==========================
-   GLOBAL / PRINT SETTINGS
-========================== */
+    /* =========================
+   GLOBAL PDF SETTINGS
+========================= */
     body {
-        font-family: "Times New Roman", serif;
+        font-family: "Times New Roman", DejaVu Sans, serif;
+        font-size: 14px;
         color: #000;
         margin: 0;
     }
@@ -126,130 +129,127 @@ $faculty_list = $stmt->fetchAll();
         width: 8.27in;
         min-height: 11.69in;
         padding: 1in;
-        margin: auto;
     }
 
-    @media print {
-        body {
-            margin: 0;
-        }
-
-        .page {
-            padding: 0.75in;
-        }
-    }
-
-    /* ==========================
+    /* =========================
    HEADER
-========================== */
+========================= */
     .header {
         text-align: center;
-        line-height: 1.3;
+        line-height: 1.4;
+    }
+
+    .header p {
+        margin: 3px 0;
     }
 
     .header h3 {
-        margin: 5px 0;
+        margin: 6px 0;
         font-size: 18px;
+        letter-spacing: 0.5px;
     }
 
     .header h2 {
-        margin: 20px 0 10px;
-        text-decoration: underline;
+        margin: 25px 0 15px;
         font-size: 20px;
+        text-decoration: underline;
+        letter-spacing: 1px;
     }
 
-    /* ==========================
+    /* =========================
    STUDENT INFO
-========================== */
+========================= */
     .student-info {
-        margin-top: 30px;
+        margin-top: 35px;
         font-size: 15px;
     }
 
     .student-info p {
-        margin: 10px 0;
+        margin: 12px 0;
     }
 
     .line {
         display: inline-block;
         border-bottom: 1px solid #000;
-        min-width: 350px;
-        padding-left: 5px;
+        min-width: 360px;
+        padding-left: 6px;
     }
 
-    /* ==========================
+    /* =========================
    CONTENT
-========================== */
+========================= */
     .content {
-        margin-top: 30px;
+        margin-top: 35px;
         text-align: justify;
-        line-height: 1.6;
+        line-height: 1.7;
         font-size: 15px;
     }
 
-    /* ==========================
-   SIGNATURES
-========================== */
+    /* =========================
+   SIGNATURES (DOMPDF SAFE)
+========================= */
     .signatures {
-        margin-top: 40px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 60px;
+        margin-top: 50px;
     }
 
-    .signature-block {
-        margin-top: 50px;
+    .signature-row {
+        width: 100%;
+        margin-bottom: 35px;
         text-align: center;
     }
 
+    .signature-block {
+        width: 45%;
+        display: inline-block;
+        vertical-align: top;
+        margin: 0 2%;
+    }
+
     .signature-block img {
-        height: 100px;
-        object-fit: contain;
+        height: 80px;
+        margin-bottom: 5px;
     }
 
     .sig-line {
         border-top: 1px solid #000;
         margin-top: 8px;
         font-weight: bold;
+        font-size: 14px;
     }
 
     .designation {
-        font-size: 13px;
+        font-size: 12px;
     }
 
     .sig-date {
         font-size: 11px;
-        margin-top: 2px;
+        margin-top: 3px;
     }
 
-    /* ==========================
+    /* =========================
    FOOTER
-========================== */
+========================= */
     .footer {
-        margin-top: 60px;
+        margin-top: 70px;
         text-align: center;
         font-size: 12px;
+        line-height: 1.5;
     }
     </style>
 </head>
 
 <body>
-
     <div class="page">
 
-        <!-- HEADER -->
         <div class="header">
             <p>Republic of the Philippines</p>
             <h3>BOHOL ISLAND STATE UNIVERSITY</h3>
             <p>Clarin Campus, Clarin, Bohol</p>
             <p><strong>Student Development Services Office</strong></p>
-            <p><?= htmlspecialchars($template['semester']) ?> Semester A.Y.
-                <?= htmlspecialchars($template['academic_year']) ?></p>
-
+            <p><?= $template['semester'] ?> Semester A.Y. <?= $template['academic_year'] ?></p>
             <h2>INTERNAL CLEARANCE</h2>
         </div>
 
-        <!-- STUDENT INFO -->
         <div class="student-info">
             <p>
                 <strong>Name of Student:</strong>
@@ -259,54 +259,68 @@ $faculty_list = $stmt->fetchAll();
                 <strong>Course, Year & Section:</strong>
                 <span class="line">
                     <?= htmlspecialchars($student['course']) ?>
-                    <?= htmlspecialchars($student['year_level']) ?><?= htmlspecialchars($student['section']) ?>
+                    <?= htmlspecialchars($student['year_level']) ?>
+                    <?= htmlspecialchars($student['section']) ?>
                 </span>
             </p>
         </div>
 
-        <!-- BODY -->
         <div class="content">
-            <?= nl2br(htmlspecialchars($template['header_text'])) ?>
-            <br><br>
+            <?= nl2br(htmlspecialchars($template['header_text'])) ?><br><br>
             <?= nl2br(htmlspecialchars($clearance['description'])) ?>
         </div>
 
-        <!-- SIGNATURES -->
         <div class="signatures">
-            <?php foreach ($faculty_list as $f): ?>
+            <?php
+$counter = 0;
+foreach ($faculty_list as $f):
+    if ($counter % 2 === 0) echo '<div class="signature-row">';
+?>
             <div class="signature-block">
-
                 <?php if ($f['status'] === 'cleared' && !empty($f['signature_path'])): ?>
                 <img src="/Student Clearance System/uploads/signatures/<?= basename($f['signature_path']) ?>">
+
                 <?php else: ?>
-                <div style="height:50px;"></div>
+                <div style="height:80px;"></div>
                 <?php endif; ?>
 
-                <div class="sig-line">
-                    <?= htmlspecialchars($f['fullname']) ?>
-                </div>
+                <div class="sig-line"><?= htmlspecialchars($f['fullname']) ?></div>
+                <div class="designation"><?= htmlspecialchars($f['designation']) ?></div>
 
-                <div class="designation">
-                    <?= htmlspecialchars($f['designation']) ?>
-                </div>
-
-                <?php if ($f['status'] === 'cleared' && $f['cleared_at']): ?>
-                <div class="sig-date">
-                    <?= date('m/d/Y', strtotime($f['cleared_at'])) ?>
-                </div>
+                <?php if ($f['cleared_at']): ?>
+                <div class="sig-date"><?= date('m/d/Y', strtotime($f['cleared_at'])) ?></div>
                 <?php endif; ?>
-
             </div>
-            <?php endforeach; ?>
+            <?php
+    if ($counter % 2 === 1) echo '</div>';
+    $counter++;
+endforeach;
+if ($counter % 2 !== 0) echo '</div>';
+?>
         </div>
 
-        <!-- FOOTER -->
+
         <div class="footer">
             <?= nl2br(htmlspecialchars($template['footer_text'])) ?>
         </div>
 
     </div>
-
 </body>
 
 </html>
+
+<?php
+$html = ob_get_clean();
+
+/*
+|--------------------------------------------------------------------------
+| GENERATE & PREVIEW PDF
+|--------------------------------------------------------------------------
+*/
+$pdf = new Dompdf();
+$pdf->loadHtml($html);
+$pdf->setPaper('A4', 'portrait');
+$pdf->render();
+
+$pdf->stream("clearance.pdf", ["Attachment" => false]);
+exit;
