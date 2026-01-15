@@ -103,7 +103,7 @@ $faculty_list = $stmt->fetchAll();
 
 /*
 |--------------------------------------------------------------------------
-| BUILD HTML (YOUR EXACT VIEW)
+| BUILD HTML (CENTERED LAYOUT LIKE REFERENCE)
 |--------------------------------------------------------------------------
 */
 ob_start();
@@ -118,111 +118,148 @@ ob_start();
     /* =========================
    GLOBAL PDF SETTINGS
 ========================= */
-    body {
-        font-family: "Times New Roman", DejaVu Sans, serif;
-        font-size: 14px;
-        color: #000;
+    * {
         margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: "Times New Roman", Georgia, serif;
+        font-size: 12px;
+        color: #000;
+        line-height: 1.4;
     }
 
     .page {
         width: 8.27in;
         min-height: 11.69in;
-        padding: 1in;
+        padding: 0.6in 0.8in;
     }
 
     /* =========================
-   HEADER
+   HEADER - CENTERED
 ========================= */
     .header {
         text-align: center;
-        line-height: 1.4;
+        margin-bottom: 30px;
     }
 
     .header p {
-        margin: 3px 0;
+        margin: 2px 0;
+        font-size: 11px;
     }
 
     .header h3 {
-        margin: 6px 0;
-        font-size: 18px;
+        margin: 5px 0;
+        font-size: 16px;
+        font-weight: bold;
         letter-spacing: 0.5px;
     }
 
-    .header h2 {
-        margin: 25px 0 15px;
-        font-size: 20px;
+    .header .office-title {
+        font-size: 12px;
+        font-weight: bold;
+        margin: 8px 0;
+        text-transform: uppercase;
+    }
+
+    .header .semester-info {
+        font-size: 11px;
+        margin: 10px 0;
         text-decoration: underline;
+    }
+
+    .header h2 {
+        margin: 20px 0 30px;
+        font-size: 18px;
+        font-weight: bold;
         letter-spacing: 1px;
     }
 
     /* =========================
-   STUDENT INFO
+   STUDENT INFO - LEFT ALIGNED
 ========================= */
     .student-info {
-        margin-top: 35px;
-        font-size: 15px;
+        margin: 30px 0 40px;
     }
 
-    .student-info p {
-        margin: 12px 0;
+    .info-row {
+        margin: 10px 0;
+        font-size: 12px;
     }
 
-    .line {
+    .info-label {
+        display: inline-block;
+        width: 180px;
+        font-weight: normal;
+    }
+
+    .info-value {
         display: inline-block;
         border-bottom: 1px solid #000;
-        min-width: 360px;
-        padding-left: 6px;
+        min-width: 350px;
+        padding-left: 5px;
     }
 
     /* =========================
    CONTENT
 ========================= */
     .content {
-        margin-top: 35px;
+        margin: 30px 0 40px;
         text-align: justify;
-        line-height: 1.7;
-        font-size: 15px;
+        line-height: 1.6;
+        font-size: 12px;
     }
 
     /* =========================
-   SIGNATURES (DOMPDF SAFE)
+   SIGNATURES - TWO COLUMN TABLE LAYOUT
 ========================= */
     .signatures {
         margin-top: 50px;
     }
 
-    .signature-row {
+    .signature-table {
         width: 100%;
-        margin-bottom: 35px;
+        border-collapse: collapse;
+    }
+
+    .signature-table td {
+        width: 50%;
+        padding: 20px 30px;
+        vertical-align: top;
         text-align: center;
     }
 
-    .signature-block {
-        width: 45%;
-        display: inline-block;
-        vertical-align: top;
-        margin: 0 2%;
+    .signature-area {
+        height: 60px;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
     }
 
-    .signature-block img {
-        height: 80px;
-        margin-bottom: 5px;
+    .signature-area img {
+        max-height: 60px;
+        max-width: 200px;
     }
 
     .sig-line {
         border-top: 1px solid #000;
-        margin-top: 8px;
+        margin-top: 5px;
+        padding-top: 5px;
         font-weight: bold;
-        font-size: 14px;
+        font-size: 12px;
+        text-transform: uppercase;
     }
 
     .designation {
-        font-size: 12px;
+        font-size: 11px;
+        margin-top: 2px;
     }
 
     .sig-date {
-        font-size: 11px;
+        font-size: 10px;
         margin-top: 3px;
     }
 
@@ -230,9 +267,9 @@ ob_start();
    FOOTER
 ========================= */
     .footer {
-        margin-top: 70px;
+        margin-top: 60px;
         text-align: center;
-        font-size: 12px;
+        font-size: 11px;
         line-height: 1.5;
     }
     </style>
@@ -244,61 +281,77 @@ ob_start();
         <div class="header">
             <p>Republic of the Philippines</p>
             <h3>BOHOL ISLAND STATE UNIVERSITY</h3>
-            <p>Clarin Campus, Clarin, Bohol</p>
-            <p><strong>Student Development Services Office</strong></p>
-            <p><?= $template['semester'] ?> Semester A.Y. <?= $template['academic_year'] ?></p>
+            <p>Poblacion Norte, Clarin 6330, Bohol, Philippines</p>
+            <p class="office-title">Office of the Student Development Services</p>
+            <p style="font-style: italic; font-size: 10px;">Balance I Integrity I Stewardship I Uprightness</p>
+            <br>
+            <p class="office-title">Student Development Services Office</p>
+            <p class="semester-info">
+                <?= htmlspecialchars($template['semester']) ?> Semester A. Y.
+                <?= htmlspecialchars($template['academic_year']) ?>
+            </p>
             <h2>INTERNAL CLEARANCE</h2>
         </div>
 
         <div class="student-info">
-            <p>
-                <strong>Name of Student:</strong>
-                <span class="line"><?= htmlspecialchars($student['fullname']) ?></span>
-            </p>
-            <p>
-                <strong>Course, Year & Section:</strong>
-                <span class="line">
-                    <?= htmlspecialchars($student['course']) ?>
-                    <?= htmlspecialchars($student['year_level']) ?>
-                    <?= htmlspecialchars($student['section']) ?>
+            <div class="info-row">
+                <span class="info-label">NAME OF STUDENT:</span>
+                <span class="info-value"><?= htmlspecialchars($student['fullname']) ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">COURSE, YEAR AND SECTION:</span>
+                <span class="info-value">
+                    <?= htmlspecialchars($student['course']) ?> -
+                    <?= htmlspecialchars($student['year_level']) ?><?= htmlspecialchars($student['section']) ?>
                 </span>
-            </p>
+            </div>
         </div>
 
         <div class="content">
-            <?= nl2br(htmlspecialchars($template['header_text'])) ?><br><br>
+            <?= nl2br(htmlspecialchars($template['header_text'])) ?>
+            <br><br>
             <?= nl2br(htmlspecialchars($clearance['description'])) ?>
         </div>
 
         <div class="signatures">
-            <?php
-$counter = 0;
-foreach ($faculty_list as $f):
-    if ($counter % 2 === 0) echo '<div class="signature-row">';
+            <table class="signature-table">
+                <?php
+                $counter = 0;
+                foreach ($faculty_list as $f):
+                    if ($counter % 2 === 0) echo '<tr>';
+                ?>
+                <td>
+                    <div class="signature-area">
+                        <?php
+if ($f['status'] === 'cleared' && !empty($f['signature_path'])) {
+    $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Student Clearance System/uploads/signatures/' . basename($f['signature_path']);
+
+    if (file_exists($imagePath)) {
+        $type = pathinfo($imagePath, PATHINFO_EXTENSION);
+        $data = file_get_contents($imagePath);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        echo '<img src="' . $base64 . '" alt="Signature">';
+    }
+}
 ?>
-            <div class="signature-block">
-                <?php if ($f['status'] === 'cleared' && !empty($f['signature_path'])): ?>
-                <img src="/Student Clearance System/uploads/signatures/<?= basename($f['signature_path']) ?>">
 
-                <?php else: ?>
-                <div style="height:80px;"></div>
-                <?php endif; ?>
+                    </div>
 
-                <div class="sig-line"><?= htmlspecialchars($f['fullname']) ?></div>
-                <div class="designation"><?= htmlspecialchars($f['designation']) ?></div>
+                    <?php if ($f['cleared_at']): ?>
+                    <div class="sig-date"><?= date('m/d/Y', strtotime($f['cleared_at'])) ?></div>
+                    <?php endif; ?>
 
-                <?php if ($f['cleared_at']): ?>
-                <div class="sig-date"><?= date('m/d/Y', strtotime($f['cleared_at'])) ?></div>
-                <?php endif; ?>
-            </div>
-            <?php
-    if ($counter % 2 === 1) echo '</div>';
-    $counter++;
-endforeach;
-if ($counter % 2 !== 0) echo '</div>';
-?>
+                    <div class="sig-line"><?= strtoupper(htmlspecialchars($f['fullname'])) ?></div>
+                    <div class="designation"><?= htmlspecialchars($f['designation']) ?></div>
+                </td>
+                <?php
+                    if ($counter % 2 === 1) echo '</tr>';
+                    $counter++;
+                endforeach;
+                if ($counter % 2 !== 0) echo '<td></td></tr>';
+                ?>
+            </table>
         </div>
-
 
         <div class="footer">
             <?= nl2br(htmlspecialchars($template['footer_text'])) ?>
