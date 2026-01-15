@@ -143,6 +143,7 @@ ob_start();
     .header {
         text-align: center;
         margin-bottom: 30px;
+        margin-right: 150px;
     }
 
     .header p {
@@ -217,6 +218,7 @@ ob_start();
 ========================= */
     .signatures {
         margin-top: 50px;
+        margin-right: 150px;
     }
 
     .signature-table {
@@ -232,7 +234,7 @@ ob_start();
     }
 
     .signature-area {
-        height: 60px;
+        height: 25px;
         margin-bottom: 5px;
         display: flex;
         align-items: flex-end;
@@ -271,6 +273,7 @@ ob_start();
         text-align: center;
         font-size: 11px;
         line-height: 1.5;
+        margin-right: 150px;
     }
     </style>
 </head>
@@ -323,20 +326,18 @@ ob_start();
                 <td>
                     <div class="signature-area">
                         <?php
-if ($f['status'] === 'cleared' && !empty($f['signature_path'])) {
-    $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Student Clearance System/uploads/signatures/' . basename($f['signature_path']);
+                            if ($f['status'] === 'cleared' && !empty($f['signature_path'])) {
+                                $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Student Clearance System/uploads/signatures/' . basename($f['signature_path']);
 
-    if (file_exists($imagePath)) {
-        $type = pathinfo($imagePath, PATHINFO_EXTENSION);
-        $data = file_get_contents($imagePath);
-        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-        echo '<img src="' . $base64 . '" alt="Signature">';
-    }
-}
-?>
-
+                                if (file_exists($imagePath)) {
+                                    $type = pathinfo($imagePath, PATHINFO_EXTENSION);
+                                    $data = file_get_contents($imagePath);
+                                    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                                    echo '<img src="' . $base64 . '" alt="Signature">';
+                                }
+                            }
+                        ?>
                     </div>
-
                     <?php if ($f['cleared_at']): ?>
                     <div class="sig-date"><?= date('m/d/Y', strtotime($f['cleared_at'])) ?></div>
                     <?php endif; ?>
