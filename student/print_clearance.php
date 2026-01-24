@@ -234,16 +234,16 @@ ob_start();
     }
 
     .signature-area {
-        height: 25px;
-        margin-bottom: 5px;
+        height: 85px;
+        margin-bottom: 2px;
         display: flex;
         align-items: flex-end;
         justify-content: center;
     }
 
     .signature-area img {
-        max-height: 60px;
-        max-width: 200px;
+        max-height: 160px;
+        max-width: 300px;
     }
 
     .sig-line {

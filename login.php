@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="assets/css/loginstyle.css">
-    <link rel="shortcut icon" href="images/heartlogo.png">
+    <!-- <link rel="shortcut icon" href="images/heartlogo.png"> -->
 
     <style>
     .container {
@@ -89,9 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container">
         <div class="login-box">
 
-            <div class="logo">
+            <!-- <div class="logo">
                 <img src="images/login.png" alt="Logo">
-            </div>
+            </div> -->
 
             <h1>Student Clearance System</h1>
             <h3>Login</h3>

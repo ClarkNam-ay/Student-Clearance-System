@@ -18,15 +18,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     }
 
     $fullname = trim($_POST['fullname']);
-    $course   = trim($_POST['course']);
-    $year_level = trim($_POST['year_level']);
-    $section  = trim($_POST['section']);
-    $email    = trim($_POST['email']);
+    $email = trim($_POST['email']);
     $password = $_POST['password'];
-    $role     = $_POST['role'];
+    $role = $_POST['role'];
 
-    if ($fullname === "" || $course === "" || $year_level === "" || $section === "" || $email === "" || $password === "" || $role === "") {
-        $error = "All fields are required.";
+    $course = $_POST['course'] ?? null;
+    $year_level = $_POST['year_level'] ?? null;
+    $section = $_POST['section'] ?? null;
+    $designation = trim($_POST['designation'] ?? null);
+
+    if ($fullname === "" || $email === "" || $password === "" || $role === "") {
+    $error = "All required fields must be filled.";
+    } 
+    elseif ($role === 'student' && ($course === "" || $year_level === "" || $section === "")) {
+        $error = "Student fields are incomplete.";
+    }
+    elseif ($role === 'faculty' && $designation === "") {
+    $error = "Faculty designation is required.";
     }
     elseif (!in_array($role, ['student', 'faculty'])) {
         $error = "Invalid role selected.";
@@ -41,12 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
         else {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            $stmt = $pdo->prepare(
-                "INSERT INTO users (fullname, course, year_level, section, email, password, role)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)"
-            );
+            $stmt = $pdo->prepare("
+            INSERT INTO users
+            (fullname, course, year_level, section, designation, email, password, role)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ");
 
-            if ($stmt->execute([$fullname, $course, $year_level, $section, $email, $hashedPassword, $role])) {
+            if ($stmt->execute([$fullname, $course, $year_level, $section, $designation, $email, $hashedPassword, $role])) {
                 $message = ucfirst($role) . " account created successfully.";
             } else {
                 $error = "Failed to create account.";
@@ -1001,62 +1010,71 @@ tbody tr:hover {
         <form method="POST">
             <div class="modal-body">
                 <?= csrf_input() ?>
+
                 <div class="form-group">
                     <label><i class="fas fa-user"></i> Full Name</label>
-                    <input type="text" name="fullname" placeholder="Enter full name" required>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-graduation-cap"></i> Course</label>
-                    <select name="course" required>
-                        <option value="">-- Select Course --</option>
-                        <option value="BSCS">BS in Computer Science</option>
-                        <option value="BSIS">BS in Information Systems</option>
-                        <option value="BSIT">BS in Information Technology</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-layer-group"></i> Year Level</label>
-                    <select name="year_level" required>
-                        <option value="">-- Select Year Level --</option>
-                        <option value="1">1st Year</option>
-                        <option value="2">2nd Year</option>
-                        <option value="3">3rd Year</option>
-                        <option value="4">4th Year</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-chalkboard"></i> Section</label>
-                    <select name="section" required>
-                        <option value="">-- Select Section --</option>
-                        <option value="A">Section A</option>
-                        <option value="B">Section B</option>
-                        <option value="C">Section C</option>
-                        <option value="D">Section D</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-envelope"></i> Email Address</label>
-                    <input type="email" name="email" placeholder="Enter email address" required>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-lock"></i> Password</label>
-                    <input type="password" name="password" placeholder="Enter password" required>
+                    <input type="text" name="fullname" required>
                 </div>
 
                 <div class="form-group">
                     <label><i class="fas fa-user-tag"></i> Role</label>
-                    <select name="role" required>
-                        <option value="">-- Select Role --</option>
-                        <option value="student">Student</option>
+                    <select name="role" id="create_role" required onchange="toggleCreateRoleFields()">
+                        <option value="student" selected>Student</option>
                         <option value="faculty">Faculty</option>
                     </select>
                 </div>
+
+                <!-- STUDENT FIELDS -->
+                <div id="studentCreateFields">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> Course</label>
+                        <select name="course">
+                            <option value="BSCS">BS in Computer Science</option>
+                            <option value="BSIS">BS in Information Systems</option>
+                            <option value="BSIT">BS in Information Technology</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-layer-group"></i> Year Level</label>
+                        <select name="year_level">
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-chalkboard"></i> Section</label>
+                        <select name="section">
+                            <option value="A">Section A</option>
+                            <option value="B">Section B</option>
+                            <option value="C">Section C</option>
+                            <option value="D">Section D</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- FACULTY FIELDS -->
+                <div id="facultyCreateFields" style="display:none;">
+                    <div class="form-group">
+                        <label><i class="fas fa-id-badge"></i> Designation</label>
+                        <input type="text" name="designation" placeholder="e.g. Department Head">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" name="password" required>
+                </div>
             </div>
+
 
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" onclick="closeModal()">
@@ -1234,6 +1252,20 @@ function openDeleteModal(id) {
 
 function closeDeleteModal() {
     document.getElementById('deleteUserModal').classList.remove('active');
+}
+
+function toggleCreateRoleFields() {
+    const role = document.getElementById('create_role').value;
+    const studentFields = document.getElementById('studentCreateFields');
+    const facultyFields = document.getElementById('facultyCreateFields');
+
+    if (role === 'faculty') {
+        studentFields.style.display = 'none';
+        facultyFields.style.display = 'block';
+    } else {
+        studentFields.style.display = 'block';
+        facultyFields.style.display = 'none';
+    }
 }
 
 <?php if ($error): ?>

@@ -7,8 +7,6 @@
     box-sizing: border-box;
 }
 
-
-
 .container form {
     margin-top: 35px;
 }
@@ -35,7 +33,7 @@
 h1 {
     text-align: center;
     margin-bottom: 20px;
-    color: 	#800080;
+    color: 	#5718de;
 }
 
 h3 {
@@ -80,7 +78,7 @@ h3 {
 }
 
 .login-button {
-    background-color: #800080;
+    background-color: #5718de;
     color: #fff;
     border: none;
     padding: 10px 65px;
@@ -93,7 +91,7 @@ h3 {
 }
 
 .login-button:hover {
-    background-color: #4B0082;
+    background-color: #a528ff;
 }
 
 form {
